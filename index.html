@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>Mapa de Animales en Situaciónd e bandono</title>
+    <script src="https://cdn.maptiler.com/maptiler-sdk-js/v1.2.0/maptiler-sdk.umd.js"></script>
+    <link href="https://cdn.maptiler.com/maptiler-sdk-js/v1.2.0/maptiler-sdk.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        #map {
+            height: 400px;
+            width: 60%;
+        }
+
+        .popup-image {
+            max-width: 10px;
+            /* Ancho máximo de la imagen */
+            height: auto;
+            /* Altura ajustada automáticamente */
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map">
+    </div>
+    <script>
+        const key = 'UWGUSPQ1JMjK7UPTWNTH';
+        const map = L.map('map').setView([-1.0780577, -80.5362326], 10); //starting position
+        L.tileLayer(`https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${key}`, { //style URL
+            tileSize: 512,
+            zoomOffset: -1,
+            minZoom: 1,
+            crossOrigin: true
+        }).addTo(map);
+        // Llamada AJAX para obtener datos de la base de datos
+        let xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                try {
+                    console.log(this.responseText);
+                    let locations = JSON.parse(this.responseText);
+                    console.log(locations);
+                    for (var i = 0; i < locations.length; i++) {
+                        L.marker([parseFloat(locations[i].latitude), parseFloat(locations[i].longitude)])
+                            .addTo(map).bindPopup('<h3>' + locations[i].name + '</h3>' + '<p>' + locations[i].description + '</p>' +
+                                '<br><img src="https://st.depositphotos.com/3256961/4366/v/450/depositphotos_43663021-stock-illustration-dog-icon.jpg">');
+                    }
+                } catch (e) {
+                    console.error("Error parsing JSON:", e);
+                }
+            }
+        };
+        xmlhttp.open("GET", "get_locations.php", true);
+        xmlhttp.send();
+
+    </script>
+</body>
+
+</html>
